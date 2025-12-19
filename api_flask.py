@@ -2,7 +2,6 @@ import joblib
 import pandas as pd
 from flask import Flask, request, jsonify, render_template
 
-# --- CONFIGURATION INITIALE ---
 
 CHEMIN_MODELE = 'modele_nutriscore_random_forest.joblib' 
 app = Flask(__name__)
@@ -10,7 +9,6 @@ app = Flask(__name__)
 # Mapping inverse (Conversion de chiffre à lettre)
 INVERSE_MAPPING_NUTRISCORE = {0: 'A', 1: 'B', 2: 'C', 3: 'D', 4: 'E'}
 
-# ATTENTION : CET ORDRE DOIT CORRESPONDRE EXACTEMENT À X_train !
 # J'ai restauré la liste de 6 features pour un Random Forest standard.
 COLUMNS_ORDER = [
     'énergie', 
@@ -18,7 +16,7 @@ COLUMNS_ORDER = [
     'sel', 
     'acides_gras_saturés', 
     'fibres_alimentaires',
-          # Assurez-vous d'avoir cette 6e feature si elle est dans votre modèle
+        
 ] 
 
 # Fonction utilitaire pour associer la couleur officielle au grade
@@ -36,16 +34,15 @@ def obtenir_couleur(grade):
 def obtenir_message_feedback(grade):
     """Retourne un message explicatif en fonction du grade Nutri-Score."""
     messages = {
-        'A': "Excellente",       # <-- Change ce texte ici
-        'B': "Bonne",            # <-- Change ce texte ici
-        'C': "Moyenne",          # <-- Change ce texte ici
-        'D': "Médiocre",         # <-- Change ce texte ici
-        'E': "Trés mauvaise"          # <-- Change ce texte ici
+        'A': "Excellente",      
+        'B': "Bonne",
+        'C': "Moyenne",          
+        'D': "Médiocre",         
+        'E': "Trés mauvaise"          
     }
-    # Si le grade n'est pas trouvé, on affiche "Score non classifié"
     return messages.get(grade, "Score non classifié.")
 
-# --- CHARGEMENT DU MODÈLE (Une seule fois au démarrage) ---
+# CHARGEMENT DU MODÈLE 
 try:
     model_champion = joblib.load(CHEMIN_MODELE)
     print(f"✅ Modèle chargé depuis {CHEMIN_MODELE}")
@@ -54,16 +51,16 @@ except Exception as e:
     model_champion = None
 
 
-# --- DÉFINITION DES ROUTES DE L'API ---
+# DÉFINITION DES ROUTES DE L'API
 
-# ROUTE 1 : PAGE D'ACCUEIL (GET /)
+# PAGE D'ACCUEIL (GET /)
 @app.route('/')
 def home():
     """Route d'accueil, affiche l'interface HTML."""
     return render_template('index.html')
 
 
-# ROUTE 2 : PRÉDICTION API (POST /predict)
+#  PRÉDICTION API (POST /predict)
 @app.route('/predict', methods=['POST'])
 def predict():
     """Route API pour la prédiction Nutri-Score."""
@@ -80,11 +77,11 @@ def predict():
             # Cette étape lèvera une KeyError si une donnée est manquante
             input_data.append(float(data[col]))
 
-        # 2. Préparation du DataFrame
+        # Préparation du DataFrame
         # Assurez-vous que les données sont passées sous forme de liste de listes (ou tableau)
         df_input = pd.DataFrame([input_data], columns=COLUMNS_ORDER)
 
-        # 3. Prédiction et conversion en lettre
+        #  Prédiction et conversion en lettre
         prediction_encodee = model_champion.predict(df_input)[0]
         prediction_lettre = INVERSE_MAPPING_NUTRISCORE[prediction_encodee]
 
@@ -97,16 +94,17 @@ def predict():
         })
 
     except KeyError as e:
-        # Erreur si une donnée est manquante dans le formulaire
+        # Erreur 
         return jsonify({'error': f"Donnée manquante : {e}. Toutes les clés ({COLUMNS_ORDER}) sont requises."}), 400
     except ValueError:
         # Erreur si les données ne sont pas numériques
         return jsonify({'error': 'Les valeurs doivent être numériques (float ou int).'}), 400
     except Exception as e:
-        # Erreur inconnue (ex: problème de prédiction)
+        # Erreur inconnue
         return jsonify({'error': f"Erreur interne lors de la prédiction : {str(e)}"}), 500
 
 
 if __name__ == '__main__':
     # Lance le serveur
+
     app.run(debug=True)
