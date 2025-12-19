@@ -314,7 +314,7 @@ plt.legend(loc="lower right")
 plt.grid(True)
 plt.show()
 
-# --- BLOC : DÉFINITION ET ENTRAÎNEMENT DU CLASSIFICATEUR STACKING ---
+#DÉFINITION ET ENTRAÎNEMENT DU CLASSIFICATEUR STACKING ---
 
 print("\n--- 2. DÉFINITION ET ENTRAÎNEMENT ---")
 
@@ -347,7 +347,7 @@ print("🧠 Entraînement du Stacking Classifier...")
 stack_model.fit(X_train, y_train)
 print("✅ Entraînement terminé.")
 
-# --- BLOC 3 : ÉVALUATION ET COMPARAISON DES PERFORMANCES ---
+#  ÉVALUATION ET COMPARAISON DES PERFORMANCES ---
 
 print("\n--- 3. ÉVALUATION DES PERFORMANCES ---")
 
@@ -365,7 +365,7 @@ for name, model in base_estimators:
     print(f"  - Précision du modèle {name.upper()} : {indiv_accuracy:.4f}")
 
 
-# --- BLOC 4 : SAUVEGARDE DU MODÈLE CHAMPION (Le Stacking Classifier) ---
+#SAUVEGARDE DU MODÈLE CHAMPION (Le Stacking Classifier) ---
 
 # C'est ce modèle que vous devriez utiliser dans votre API Flask !
 NOM_FICHIER_STACKING = 'modele_nutriscore_stacking.joblib'
@@ -373,4 +373,3 @@ joblib.dump(stack_model, NOM_FICHIER_STACKING)
 
 print(f"\n--- 4. SAUVEGARDE ET UTILISATION ---")
 print(f"💾 Le nouveau modèle champion (Stacking) a été sauvegardé sous : {NOM_FICHIER_STACKING}")
-print("Prochaine étape : Mettre à jour 'app.py' pour charger ce nouveau fichier.")
